@@ -15,7 +15,7 @@ _ACTION_SPACES = {
 }
 
 level_id = 'SuperMarioBros-v0'      # For the level IDs : check https://pypi.org/project/gym-super-mario-bros/#description
-mode = 'human'                      # choices=['human', 'random']
+mode = 'computer'                      # choices=['human', 'random']
 actionspace = 'nes'                 # choices=['nes', 'right', 'simple', 'complex']
 steps = 500                         # Number of steps to take
 

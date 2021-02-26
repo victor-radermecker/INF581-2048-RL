@@ -130,7 +130,7 @@ class GymBoard(object):
             if self.step_normalize_reward and reward > 0:
                 reward = np.log2(reward)
 
-        info = {"observation_prev": old_matrix, "score": self.score, "score_diff": score_diff}
+        info = {"observation_prev": old_matrix, "score": self.score, "score_diff": score_diff, "invalid_steps": self.n_steps_invalid_current}
 
         if self.step_normalize_matrix:
             return self._normalized_matrix, reward, done, info
@@ -316,7 +316,6 @@ class GymBoard(object):
         if direction in [0, "up"]:
             lines_cols = [np.flipud(self._matrix[:, i]) for i in range(self.shape[1])]
             for i, line in enumerate(lines_cols):
-                print(line)
                 new_slice, score_slice = self._move_line(line)
                 self._matrix[:, i] = np.flipud(new_slice)
                 score += score_slice

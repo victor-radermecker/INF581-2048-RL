@@ -5,6 +5,7 @@ Each game is logged - pairs of (game state, action) are saved.
 
 import pygame
 import sys, os
+import numpy as np
 from pygame.locals import *
 from gym_board import GymBoard
 from utils import Step, Game, encode_action
@@ -159,6 +160,40 @@ def play(board, save_normalized_matrix=True):
         pygame.display.flip()
 
 
+def play_random(board, save_normalized_matrix=True):
+
+    steps = []
+    render_board(board)
+
+    while True:
+
+        #Exit if needed by pressing red cross
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+        #Playing randomly
+        r = np.random.RandomState()
+        action = r.choice(list(range(GymBoard.NB_ACTIONS)))  #Select a random action
+        moved = board.move(action)
+        matrix = board.normalized_matrix if save_normalized_matrix else board.matrix
+
+        if moved:
+            print()
+            print(board.matrix)
+            print("SCORE:", board.score, "\tSTEP:", board.n_steps_valid, "\tHIGHEST VALUE:", board.highest_value)
+            steps.append(Step(matrix=matrix, action=action, action_encoded=encode_action(action)))
+            render_board(board)
+
+            if board.is_gameover():
+                print("GAME OVER!")
+                return Game(steps=steps, score=board.score, random_seed=board.random_seed, is_gameover=True)            
+
+        clock.tick(5)
+        pygame.display.flip()
+
+
 ### PyGame options
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
@@ -203,7 +238,7 @@ COLOR_MAP = {
 ### Game logging
 games_file = "data/games_01.pickle"
 games = []
-n_games = 3
+n_games = 1
 
 # Map keys to 2048 board actions.
 POSSIBLE_ACTIONS = {
@@ -215,11 +250,9 @@ POSSIBLE_ACTIONS = {
 
 for i in range(n_games):
     board = GymBoard()
-    print(board.matrix)
-    game = play(board)
+    game = play_random(board)
     if game == "quit":
         break
-    #pprint(game)
     games.append(game)
 
 with open(games_file, mode="bw") as f:

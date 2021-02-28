@@ -10,12 +10,13 @@ class Agent:
         self.action_dim = action_dim
         self.save_dir = save_dir
 
-        self.use_cuda = torch.cuda.is_available()
+        self.use_cuda = False#torch.cuda.is_available()
 
         # 2048 DQN Network to predict the most optimal action
         self.net = Net2048(self.state_dim, self.action_dim).float()
-        if self.use_cuda:
-            self.net = self.net.to(device="cuda:0")
+
+        self.device = "cuda:0" if self.use_cuda else "cpu"
+        self.net = self.net.to(self.device)
 
         #Training parameters
         self.exploration_rate = 0.8
@@ -107,7 +108,7 @@ class Agent:
         
         state = np.concatenate((one_hot_mat1, one_hot_mat2, one_hot_mat3, one_hot_mat4), axis=0)
         if self.use_cuda:
-            state = torch.tensor(state).cuda()
+            state = torch.tensor(state).to(self.device)
         else:
             state = torch.tensor(state)
         state = torch.flatten(state).float()
@@ -119,7 +120,7 @@ class Agent:
 
         for i in range(batch_states.shape[0]):
             new_batch[i] = self.preprocess(batch_states[i])
-        return new_batch.float()
+        return new_batch.float().to(self.device)
 
 
     def cache(self, state, next_state, action, reward, done):
@@ -134,11 +135,11 @@ class Agent:
         next_state = next_state.__array__()
 
         if self.use_cuda:
-            state = torch.tensor(state).cuda()
-            next_state = torch.tensor(next_state).cuda()
-            action = torch.tensor([action]).cuda()
-            reward = torch.tensor([reward]).cuda()
-            done = torch.tensor([done]).cuda()
+            state = torch.tensor(state).to(self.device)
+            next_state = torch.tensor(next_state).to(self.device)
+            action = torch.tensor([action]).to(self.device)
+            reward = torch.tensor([reward]).to(self.device)
+            done = torch.tensor([done]).to(self.device)
         else:
             state = torch.tensor(state)
             next_state = torch.tensor(next_state)

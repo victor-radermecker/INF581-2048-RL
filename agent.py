@@ -106,7 +106,7 @@ class Agent:
         
         #TODO
         
-        state = np.concatenate((one_hot_mat1, one_hot_mat2, one_hot_mat3, one_hot_mat4), axis=0)
+        state = np.concatenate((one_hot_mat1, one_hot_mat2, one_hot_mat3, one_hot_mat4, one_hot_mat1f, one_hot_mat2f, one_hot_mat3f, one_hot_mat4f), axis=0)
         if self.use_cuda:
             state = torch.tensor(state).to(self.device)
         else:

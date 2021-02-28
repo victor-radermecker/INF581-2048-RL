@@ -15,7 +15,7 @@ class Agent:
         # 2048 DQN Network to predict the most optimal action
         self.net = Net2048(self.state_dim, self.action_dim).float()
         if self.use_cuda:
-            self.net = self.net.to(device="cuda")
+            self.net = self.net.to(device="cuda:0")
 
         #Training parameters
         self.exploration_rate = 0.8
@@ -70,16 +70,25 @@ class Agent:
         return action_idx
 
     def preprocess(self, state):
-
         if torch.is_tensor(state):
-            state = state.numpy()
+            state = state.cpu().numpy()
 
         one_hot_mat1 = np.eye(16)[state.astype('int')]  #one hot encoding of log2(x) values
+
+        #Horizontal flip
+        one_hot_mat1f = np.flip(one_hot_mat1, 0)
+
 
         #Matrix rotations
         one_hot_mat2 = np.rot90(one_hot_mat1)
         one_hot_mat3 = np.rot90(one_hot_mat2)
         one_hot_mat4 = np.rot90(one_hot_mat3)
+
+        one_hot_mat2f = np.rot90(one_hot_mat1f)
+        one_hot_mat3f = np.rot90(one_hot_mat2f)
+        one_hot_mat4f = np.rot90(one_hot_mat3f)
+
+
 
         #Matrix reshaping
         one_hot_mat1 = np.reshape(one_hot_mat1, (-1,4,4,16))
@@ -87,7 +96,13 @@ class Agent:
         one_hot_mat3 = np.reshape(one_hot_mat3, (-1,4,4,16))
         one_hot_mat4 = np.reshape(one_hot_mat4, (-1,4,4,16))
 
-        #Vertical symmetries
+        one_hot_mat1f = np.reshape(one_hot_mat1f, (-1,4,4,16))
+        one_hot_mat2f = np.reshape(one_hot_mat2f, (-1,4,4,16))
+        one_hot_mat3f = np.reshape(one_hot_mat3f, (-1,4,4,16))
+        one_hot_mat4f = np.reshape(one_hot_mat4f, (-1,4,4,16))
+
+
+        
         #TODO
         
         state = np.concatenate((one_hot_mat1, one_hot_mat2, one_hot_mat3, one_hot_mat4), axis=0)

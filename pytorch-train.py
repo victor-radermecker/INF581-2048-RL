@@ -11,6 +11,8 @@ from metricLogger import MetricLogger
 # Gymboard environment
 from gym_board import GymBoard
 
+AGENT_TYPE = ["DQN", "DDQN"]
+
 env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
 
 env.reset()
@@ -26,7 +28,8 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
+
+agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
 

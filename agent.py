@@ -5,15 +5,17 @@ from collections import deque
 import random
 
 class Agent:
-    def __init__(self, state_dim, action_dim, save_dir):
+    def __init__(self, state_dim, action_dim, agent_type, save_dir):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.save_dir = save_dir
 
         self.use_cuda = torch.cuda.is_available()
 
+        # Agent type is "DQN" or "DDQN"
+        self.agent_type = agent_type
         # 2048 DQN Network to predict the most optimal action
-        self.net = Net2048(self.state_dim, self.action_dim).float()
+        self.net = Net2048(self.state_dim, self.action_dim, self.agent_type).float()
 
         self.device = "cuda:0" if self.use_cuda else "cpu"
         self.net = self.net.to(self.device)
@@ -171,9 +173,14 @@ class Agent:
         next_state = self.preprocess_batch(next_state)
         next_state_Q = self.net(next_state, model="online")
         best_action = torch.argmax(next_state_Q, axis=1)
-        next_Q = self.net(next_state, model="target")[
-            np.arange(0, self.batch_size), best_action
-        ]
+
+        if self.agent_type == "DDQN":
+            next_Q = self.net(next_state, model="target")[
+                np.arange(0, self.batch_size), best_action
+            ]
+        elif self.agent_type == "DQN":
+            next_Q = next_state_Q[np.arange(0, self.batch_size), best_action]
+        
         return (reward + (1 - done.float()) * self.gamma * next_Q).float()
 
     def update_Q_online(self, td_estimate, td_target):
@@ -199,8 +206,7 @@ class Agent:
 
 
     def learn(self):
-
-        if self.curr_step % self.sync_every == 0:       #synchronization time
+        if self.agent_type == "DDQN" and self.curr_step % self.sync_every == 0:       #synchronization time
             self.sync_Q_target()
 
         if self.curr_step % self.save_every == 0:       #saving time

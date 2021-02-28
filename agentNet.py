@@ -7,7 +7,7 @@ class Net2048(nn.Module):
     See this paper for the network's structure.
     """
 
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim, output_dim, agent_type):
         super().__init__()
         r, d1, d2, n = input_dim  #it should be 8 x 4 x 4 x 16
 
@@ -25,14 +25,17 @@ class Net2048(nn.Module):
             nn.Softmax(),
         )
 
-        self.target = copy.deepcopy(self.online)
+        self.agent_type = agent_type
 
-        # Q_target parameters are frozen.
-        for p in self.target.parameters():
-            p.requires_grad = False
+        if self.agent_type == "DDQN":
+            self.target = copy.deepcopy(self.online)
+
+            # Q_target parameters are frozen.
+            for p in self.target.parameters():
+                p.requires_grad = False
 
     def forward(self, input, model):
         if model == "online":
             return self.online(input)
-        elif model == "target":
+        elif self.agent_type == "DDQN" and model == "target":
             return self.target(input)

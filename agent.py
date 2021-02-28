@@ -10,7 +10,7 @@ class Agent:
         self.action_dim = action_dim
         self.save_dir = save_dir
 
-        self.use_cuda = False#torch.cuda.is_available()
+        self.use_cuda = torch.cuda.is_available()
 
         # 2048 DQN Network to predict the most optimal action
         self.net = Net2048(self.state_dim, self.action_dim).float()

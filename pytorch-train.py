@@ -52,11 +52,6 @@ for e in range(episodes):
 
         # Remember
         agent.cache(state, next_state, action, reward, done)
-        # print(e, '\n')
-        # print('state \n', state)
-        # print('next_state \n', next_state)
-        # print('action \n', action)
-        # print(next_state == state)
 
         # Learn
         q, loss = agent.learn()

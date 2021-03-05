@@ -25,7 +25,7 @@ class Agent_conv:
             parameter.requires_grad = False
 
         #Training parameters
-        self.exploration_rate = 0.5
+        self.exploration_rate = 0.9
         self.exploration_rate_decay = 0.99999975
         self.exploration_rate_min = 0.1
         self.curr_step = 0
@@ -33,14 +33,14 @@ class Agent_conv:
         self.save_every = 20000  # no. of experiences between saving 2048Net's weights
 
         #Train
-        self.memory = deque(maxlen=100000)
-        self.batch_size = 16
+        self.memory = deque(maxlen=10000)
+        self.batch_size = 64
         self.gamma = 0.9
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.001)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.0005)
         self.loss_fn = torch.nn.MSELoss()
 
         #Learn
-        self.burnin = 25000  # min. experiences before training
+        self.burnin = 15000  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 

@@ -1,10 +1,10 @@
 import torch
 import numpy as np
-from agentNet import Net2048
+from agentNet import Net2048_conv
 from collections import deque
 import random
 
-class Agent:
+class Agent_conv:
     def __init__(self, state_dim, action_dim, agent_type, save_dir):
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -12,13 +12,17 @@ class Agent:
 
         self.use_cuda = torch.cuda.is_available()
 
-        # Agent type is "DQN" or "DDQN"
-        self.agent_type = agent_type
         # 2048 DQN Network to predict the most optimal action
-        self.net = Net2048(self.state_dim, self.action_dim, self.agent_type).float()
+        self.onlineNet = Net2048_conv(self.state_dim).float()
+        self.targetNet = Net2048_conv(self.state_dim).float()
 
         self.device = "cuda:0" if self.use_cuda else "cpu"
-        self.net = self.net.to(self.device)
+        self.net = self.onlineNet.to(self.device)
+        self.net = self.targetNet.to(self.device)
+
+        #Freeze parameters of target network
+        for parameter in self.targetNet.parameters():
+            parameter.requires_grad = False
 
         #Training parameters
         self.exploration_rate = 0.5
@@ -28,16 +32,15 @@ class Agent:
 
         self.save_every = 20000  # no. of experiences between saving 2048Net's weights
 
-
         #Train
         self.memory = deque(maxlen=100000)
         self.batch_size = 16
         self.gamma = 0.9
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.0001)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.001)
         self.loss_fn = torch.nn.MSELoss()
 
         #Learn
-        self.burnin = 100000  # min. experiences before training
+        self.burnin = 25000  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 
@@ -59,9 +62,8 @@ class Agent:
         else:
             state = state.__array__()
 
-            state = self.preprocess(state)
-            action_values = self.net(state, model="online").reshape(-1,4)
-#            action_values = action_values.reshape((-1, 4))
+            state = self.preprocess(state).float()
+            action_values = self.onlineNet.forward(state).reshape(-1,4)
             action_idx = torch.argmax(action_values, axis=1).item()
 
         # decrease exploration_rate
@@ -72,49 +74,30 @@ class Agent:
         self.curr_step += 1
         return action_idx
 
+
     def preprocess(self, state):
         if torch.is_tensor(state):
             state = state.cpu().numpy()
-
-        one_hot_mat1 = np.eye(16)[state.astype('int')]  #one hot encoding of log2(x) values
-
-        #Horizontal flip
-        one_hot_mat1f = np.flip(one_hot_mat1, 0)
-
-        #Matrix rotations
-        one_hot_mat2 = np.rot90(one_hot_mat1)
-        one_hot_mat3 = np.rot90(one_hot_mat2)
-        one_hot_mat4 = np.rot90(one_hot_mat3)
-
-        one_hot_mat2f = np.rot90(one_hot_mat1f)
-        one_hot_mat3f = np.rot90(one_hot_mat2f)
-        one_hot_mat4f = np.rot90(one_hot_mat3f)
-
-        #Matrix reshaping
-        one_hot_mat1 = np.reshape(one_hot_mat1, (-1,4,4,16))
-        one_hot_mat2 = np.reshape(one_hot_mat2, (-1,4,4,16))
-        one_hot_mat3 = np.reshape(one_hot_mat3, (-1,4,4,16))
-        one_hot_mat4 = np.reshape(one_hot_mat4, (-1,4,4,16))
-
-        one_hot_mat1f = np.reshape(one_hot_mat1f, (-1,4,4,16))
-        one_hot_mat2f = np.reshape(one_hot_mat2f, (-1,4,4,16))
-        one_hot_mat3f = np.reshape(one_hot_mat3f, (-1,4,4,16))
-        one_hot_mat4f = np.reshape(one_hot_mat4f, (-1,4,4,16))
         
-        state = np.concatenate((one_hot_mat1, one_hot_mat2, one_hot_mat3, one_hot_mat4, one_hot_mat1f, one_hot_mat2f, one_hot_mat3f, one_hot_mat4f), axis=0)
+        #One hot encoding
+        state = np.eye(16)[state.astype('int')]  #one hot encoding of log2(x) values
+        state = state.transpose(2,0,1)
+        state = state.reshape((1,16,4,4))
+
         if self.use_cuda:
             state = torch.tensor(state).to(self.device)
         else:
             state = torch.tensor(state)
-        state = torch.flatten(state).float()
+
         return state
+
 
     def preprocess_batch(self, batch_states):
         dim = self.state_dim
-        new_batch = torch.tensor(np.zeros((self.batch_size, dim[0]*dim[1]*dim[2]*dim[3])))
-
+        new_batch = torch.tensor(np.zeros((self.batch_size, dim[3], dim[1], dim[2])))
+  
         for i in range(batch_states.shape[0]):
-            new_batch[i] = self.preprocess(batch_states[i])
+            new_batch[i] = self.preprocess(batch_states[i]).reshape((16,4,4))
         return new_batch.float().to(self.device)
 
 
@@ -125,7 +108,7 @@ class Agent:
         Inputs:
         state (LazyFrame), next_state (LazyFrame), action (int), reward (float), done(bool))
         """
-        
+    
         state = state.__array__()
         next_state = next_state.__array__()
 
@@ -156,25 +139,25 @@ class Agent:
 
     def td_estimate(self, state, action):
         state = self.preprocess_batch(state)
-        current_Q = self.net(state, model="online")[
+        current_Q = self.onlineNet(state)[
             np.arange(0, self.batch_size), action
         ]  # Q_online(s,a)
         return current_Q
 
+
     @torch.no_grad()
     def td_target(self, reward, next_state, done):
         next_state = self.preprocess_batch(next_state)
-        next_state_Q = self.net(next_state, model="online")
+        next_state_Q = self.onlineNet(next_state)
         best_action = torch.argmax(next_state_Q, axis=1)
-
-        if self.agent_type == "DDQN":
-            next_Q = self.net(next_state, model="target")[
-                np.arange(0, self.batch_size), best_action
+    
+        with torch.no_grad():
+                next_Q = self.targetNet(next_state)[
+                    np.arange(0, self.batch_size), best_action
             ]
-        elif self.agent_type == "DQN":
-            next_Q = next_state_Q[np.arange(0, self.batch_size), best_action]
         
         return (reward + (1 - done.float()) * self.gamma * next_Q).float()
+
 
     def update_Q_online(self, td_estimate, td_target):
         loss = self.loss_fn(td_estimate, td_target)
@@ -183,8 +166,9 @@ class Agent:
         self.optimizer.step()
         return loss.item()
 
+
     def sync_Q_target(self):
-        self.net.target.load_state_dict(self.net.online.state_dict())
+        self.targetNet.load_state_dict(self.onlineNet.state_dict())
 
 
     def save(self):
@@ -199,7 +183,7 @@ class Agent:
 
 
     def learn(self):
-        if self.agent_type == "DDQN" and self.curr_step % self.sync_every == 0:       #synchronization time
+        if self.curr_step % self.sync_every == 0:       #synchronization time
             self.sync_Q_target()
 
         if self.curr_step % self.save_every == 0:       #saving time
@@ -224,6 +208,3 @@ class Agent:
         loss = self.update_Q_online(td_est, td_tgt)
 
         return (td_est.mean().item(), loss)
-
-
-

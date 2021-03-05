@@ -35,7 +35,7 @@ agent = Agent_conv(state_dim=(1, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agen
 
 logger = MetricLogger(save_dir)
 
-episodes = 5000
+episodes = 10000
 
 for e in range(episodes):
 

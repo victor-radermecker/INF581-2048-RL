@@ -27,21 +27,21 @@ class Agent_conv:
 
         #Training parameters
         self.exploration_rate = 0.9
-        self.exploration_rate_decay = 0.99999975
+        self.exploration_rate_decay = 0.9999975
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
         self.save_every = 20000  # no. of experiences between saving 2048Net's weights
 
         #Train
-        self.memory = deque(maxlen=10000)
-        self.batch_size = 64
+        self.memory = deque(maxlen=100000)
+        self.batch_size = 16
         self.gamma = 0.9
         self.optimizer = torch.optim.Adam(self.onlineNet.parameters(), lr=0.0005)
         self.loss_fn = torch.nn.MSELoss()
 
         #Learn
-        self.burnin = 100  # min. experiences before training
+        self.burnin = 100000  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 
@@ -177,7 +177,7 @@ class Agent_conv:
             self.save_dir / f"2048_net_{int(self.curr_step // self.save_every)}.chkpt"
         )
         torch.save(
-            dict(model=self.net.state_dict(), exploration_rate=self.exploration_rate),
+            dict(model=self.onlineNet.state_dict(), exploration_rate=self.exploration_rate),
             save_path,
         )
         print(f"2048Net saved to {save_path} at step {self.curr_step}")

@@ -7,7 +7,8 @@ import pygame
 import sys, os
 import numpy as np
 from pygame.locals import *
-from gym_board import GymBoard
+# from gym_board import GymBoard
+from environment import GameEnv
 from utils import Step, Game, encode_action
 import pickle
 from pprint import pprint
@@ -175,7 +176,7 @@ def play_random(board, save_normalized_matrix=True):
 
         #Playing randomly
         r = np.random.RandomState()
-        action = r.choice(list(range(GymBoard.NB_ACTIONS)))  #Select a random action
+        action = r.choice(list(range(GameEnv.NB_ACTIONS)))  #Select a random action
         moved = board.move(action)
         matrix = board.normalized_matrix if save_normalized_matrix else board.matrix
 
@@ -249,7 +250,7 @@ POSSIBLE_ACTIONS = {
 }
 
 for i in range(n_games):
-    board = GymBoard()
+    board = GameEnv()
     game = play_random(board)
     if game == "quit":
         break

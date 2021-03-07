@@ -1,3 +1,4 @@
+import os
 import torch
 from pathlib import Path
 import datetime
@@ -8,15 +9,19 @@ import time
 from agent import Agent
 
 # Gymboard environment
-from gym_board import GymBoard
+# from gym_board import GymBoard
+from environment import GameEnv
 
 AGENT_TYPE = ["DQN", "DDQN"]
 
-env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
+env = GameEnv()
 
 
 # Let's train & play
 use_cuda = torch.cuda.is_available()
+# use_cuda = False
+if os.getenv("HOSTNAME") == "arcanes": # CUDA is buggy on my machine
+    use_cuda = False
 print(f"Using CUDA: {use_cuda}")
 
 save_dir = Path("eval") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
@@ -26,7 +31,7 @@ save_dir.mkdir(parents=True)
 agent_type = "DQN"
 
 agent_dir = "checkpoints/DQN/2048_net_31.chkpt"
-agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
+agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
 agent.net.load_state_dict(torch.load(agent_dir)["model"])
 agent.exploration_rate = 0
 

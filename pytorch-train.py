@@ -6,6 +6,7 @@ import datetime
 
 #Importing agent and MetricLogger
 from agent import Agent
+from agent_conv import Agent_conv
 from metricLogger import MetricLogger
 
 # Gymboard environment
@@ -29,11 +30,12 @@ save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 
-agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+#agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+agent = Agent_conv(state_dim=(1, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
 
-episodes = 5000
+episodes = 10000
 
 for e in range(episodes):
 
@@ -50,11 +52,6 @@ for e in range(episodes):
 
         # Remember
         agent.cache(state, next_state, action, reward, done)
-        # print(e, '\n')
-        # print('state \n', state)
-        # print('next_state \n', next_state)
-        # print('action \n', action)
-        # print(next_state == state)
 
         # Learn
         q, loss = agent.learn()

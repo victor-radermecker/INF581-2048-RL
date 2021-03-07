@@ -3,9 +3,10 @@ import numpy as np
 from agentNet import Net2048_conv
 from collections import deque
 import random
+import copy
 
 class Agent_conv:
-    def __init__(self, state_dim, action_dim, agent_type, save_dir):
+    def __init__(self, state_dim, action_dim, save_dir):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.save_dir = save_dir
@@ -14,11 +15,11 @@ class Agent_conv:
 
         # 2048 DQN Network to predict the most optimal action
         self.onlineNet = Net2048_conv(self.state_dim).float()
-        self.targetNet = Net2048_conv(self.state_dim).float()
+        self.targetNet = copy.deepcopy(self.onlineNet)
 
         self.device = "cuda:0" if self.use_cuda else "cpu"
-        self.net = self.onlineNet.to(self.device)
-        self.net = self.targetNet.to(self.device)
+        self.onlineNet = self.onlineNet.to(self.device)
+        self.targetNet = self.targetNet.to(self.device)
 
         #Freeze parameters of target network
         for parameter in self.targetNet.parameters():
@@ -36,11 +37,11 @@ class Agent_conv:
         self.memory = deque(maxlen=10000)
         self.batch_size = 64
         self.gamma = 0.9
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.0005)
+        self.optimizer = torch.optim.Adam(self.onlineNet.parameters(), lr=0.0005)
         self.loss_fn = torch.nn.MSELoss()
 
         #Learn
-        self.burnin = 15000  # min. experiences before training
+        self.burnin = 100  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 

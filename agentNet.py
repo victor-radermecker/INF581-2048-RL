@@ -17,12 +17,10 @@ class Net2048(nn.Module):
         self.online = nn.Sequential(
             nn.Linear(2048, 900),
             nn.ReLU(),
-            nn.Linear(900, 300),
-            nn.ReLU(),
-            nn.Linear(300, 200),
+            nn.Linear(900, 200),
             nn.ReLU(),
             nn.Linear(200, output_dim),
-            nn.Softmax(),
+            #nn.Softmax(),   #Should not use softmax as we want the q value, not sth in [0,1]
         )
 
         self.agent_type = agent_type

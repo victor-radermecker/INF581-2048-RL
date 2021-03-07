@@ -29,7 +29,17 @@ save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 
-agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DDQN", save_dir=save_dir)
+
+resume_training = False
+if(resume_training):
+    agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
+    print("Resume training from checkpoint : ", agent_dir)
+    saved_params = torch.load(agent_dir)
+    agent.net.load_state_dict(saved_params["model"])
+    agent.exploration_rate = saved_params["exploration_rate"]
+    agent.burnin = 100
+
 
 logger = MetricLogger(save_dir)
 

@@ -25,7 +25,7 @@ save_dir.mkdir(parents=True)
 
 agent_type = "DQN"
 
-agent_dir = "checkpoints/DQN/2048_net_31.chkpt"
+agent_dir = "checkpoints/DQN_20000/2048_net_80.chkpt"
 agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
 agent.net.load_state_dict(torch.load(agent_dir)["model"])
 agent.exploration_rate = 0

@@ -35,6 +35,7 @@ save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 
+<<<<<<< HEAD
 #agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DDQN", save_dir=save_dir)
 agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
 
@@ -46,6 +47,11 @@ if(resume_training):
     agent.net.load_state_dict(saved_params["model"])
     agent.exploration_rate = saved_params["exploration_rate"]
     agent.burnin = 100
+
+=======
+#agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+agent = Agent_conv(state_dim=(1, 4, 4, 16), action_dim=env.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+>>>>>>> custom_env
 
 logger = MetricLogger(save_dir)
 

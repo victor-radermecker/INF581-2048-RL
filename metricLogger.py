@@ -16,7 +16,7 @@ class MetricLogger:
         self.ep_lengths_plot = save_dir / "length_plot.jpg"
         self.ep_avg_losses_plot = save_dir / "loss_plot.jpg"
         self.ep_avg_qs_plot = save_dir / "q_plot.jpg"
-        self.ep_scores_plot = save_dir / "q_plot.jpg"
+        self.ep_scores_plot = save_dir / "scores_plot.jpg"
 
         # History metrics
         self.ep_rewards = []

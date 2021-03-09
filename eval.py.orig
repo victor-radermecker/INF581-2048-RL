@@ -21,7 +21,7 @@ env = GameEnv()
 use_cuda = torch.cuda.is_available()
 # use_cuda = False
 if os.getenv("HOSTNAME") == "arcanes": # CUDA is buggy on my machine
-    use_cuda = False #this line checks it is my machine and disables it if it is so
+    use_cuda = False
 print(f"Using CUDA: {use_cuda}")
 
 save_dir = Path("eval") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
@@ -30,8 +30,13 @@ save_dir.mkdir(parents=True)
 
 agent_type = "DQN"
 
-agent_dir = "checkpoints/DQN/2048_net_80.chkpt"
+<<<<<<< HEAD
+agent_dir = "checkpoints/DQN_20000/2048_net_80.chkpt"
+agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
+=======
+agent_dir = "checkpoints/DQN/2048_net_31.chkpt"
 agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
+>>>>>>> custom_env
 agent.net.load_state_dict(torch.load(agent_dir)["model"])
 agent.exploration_rate = 0
 

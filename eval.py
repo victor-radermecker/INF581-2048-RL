@@ -7,14 +7,14 @@ import time
 
 #Importing agent
 from agent import Agent
+from agent_conv import Agent_conv
 
 # Gymboard environment
-# from gym_board import GymBoard
-from environment import GameEnv
+from gym_board import GymBoard
+#from environment import GameEnv
 
-AGENT_TYPE = ["DQN", "DDQN"]
-
-env = GameEnv()
+env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
+#env = GameEnv()
 
 
 # Let's train & play
@@ -28,19 +28,32 @@ save_dir = Path("eval") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
 
-agent_type = "DQN"
+## ----------------------------------------------------------- ##
+# Please fix evaluation parameters here.
 
-agent_dir = "checkpoints/DQN/2048_net_80.chkpt"
-agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
-agent.net.load_state_dict(torch.load(agent_dir)["model"])
+agent_type = "DDQN"                                   # DQN or DDQN
+archi = "conv"                                        # fc or conv
+agent_dir = "checkpoints/DDQN/2048_net_17.chkpt"       # load weights
+episodes = 1000                                       # Number of games to play
+render = False                                        # True or False
+
+## ----------------------------------------------------------- ##
+
+
+if use_cuda:
+    weights = torch.load(agent_dir)["model"]
+else:
+    weights = torch.load(agent_dir, map_location=torch.device('cpu'))["model"]
+
+if archi == 'fc':
+    agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
+    agent.net.load_state_dict(weights)
+elif archi == 'conv':
+    agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
+    agent.onlineNet.load_state_dict(weights)
+
 agent.exploration_rate = 0
-
-episodes = 1000
 max_tiles = np.zeros(episodes)
-
-render = False
-
-
 MOVES = {0: "MOVE UP", 1:"MOVE DOWN", 2: "MOVE LEFT", 3: "MOVE RIGHT"}
 
 

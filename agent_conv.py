@@ -27,7 +27,7 @@ class Agent_conv:
 
         #Training parameters
         self.exploration_rate = 0.9
-        self.exploration_rate_decay = 0.9999975
+        self.exploration_rate_decay = 0.99999975
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 

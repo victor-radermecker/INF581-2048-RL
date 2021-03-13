@@ -81,6 +81,7 @@ for e in range(episodes):
             break
 
     #logger.log_episode(info['score'])
+    logger.log_episode(0)
 
     if e % 20 == 0:
         logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)

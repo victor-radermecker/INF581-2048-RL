@@ -94,7 +94,7 @@ class MetricLogger:
             f"Episode {episode} - "
             f"Step {step} - "
             f"Epsilon {epsilon} - "
-            f"Mean Reward {mean_ep_reward} - "
+            f"Mean Episode Reward {mean_ep_reward} - "
             f"Mean Length {mean_ep_length} - "
             f"Mean Loss {mean_ep_loss} - "
             f"Mean score {mean_ep_score} - "

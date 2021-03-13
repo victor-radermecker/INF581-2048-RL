@@ -12,12 +12,12 @@ from metricLogger import MetricLogger
 
 # Gymboard environment
 from gym_board import GymBoard
-#from environment import GameEnv
+from environment import GameEnv
 
 AGENT_TYPE = ["DQN", "DDQN"]
 
-env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
-#env = GameEnv()
+#env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
+env = GameEnv()
 
 env.reset()
 next_state, reward, done, info = env.step(action=0)
@@ -80,7 +80,7 @@ for e in range(episodes):
         if done:
             break
 
-    logger.log_episode(info['score'])
+    #logger.log_episode(info['score'])
 
     if e % 20 == 0:
         logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)

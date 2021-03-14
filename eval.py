@@ -13,6 +13,9 @@ from agent_conv import Agent_conv
 from gym_board import GymBoard
 from environment import GameEnv
 
+# Render env
+#import play
+
 #env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
 env = GameEnv()
 
@@ -33,7 +36,7 @@ save_dir.mkdir(parents=True)
 
 agent_type = "DDQN"                                   # DQN or DDQN
 archi = "conv"                                        # fc or conv
-agent_dir = "checkpoints/DDQN/2048_net_17.chkpt"       # load weights
+agent_dir = "checkpoints/conv_empty_reward/2048_net_75.chkpt"       # load weights
 episodes = 1000                                       # Number of games to play
 render = False                                        # True or False
 
@@ -73,6 +76,8 @@ for e in range(episodes):
         if(render):
             print(np.power(2, state))
             print(MOVES[action], "\n")
+            #play.render_board(np.power(2, state))
+            #time.sleep(0.5)
 
 
         # Agent performs action

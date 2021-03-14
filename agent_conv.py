@@ -28,7 +28,7 @@ class Agent_conv:
         #Training parameters
         self.exploration_rate = 0.9
         self.exploration_rate_decay = 0.9999975
-        self.exploration_rate_min = 0.1
+        self.exploration_rate_min = 0.03
         self.curr_step = 0
 
         self.save_every = 20000  # no. of experiences between saving 2048Net's weights
@@ -36,7 +36,7 @@ class Agent_conv:
         #Train
         self.memory = deque(maxlen=100000)
         self.batch_size = 16
-        self.gamma = 0.9
+        self.gamma = 0.99
         self.optimizer = torch.optim.Adam(self.onlineNet.parameters(), lr=0.0005)
         self.loss_fn = torch.nn.MSELoss()
 

@@ -2,6 +2,7 @@ import torch
 from pathlib import Path
 import datetime
 import os
+import numpy as np
 
 
 
@@ -39,6 +40,8 @@ save_dir.mkdir(parents=True)
 agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
 
 resume_training = False
+reward_type = "Empty"
+
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
     print("Resume training from checkpoint : ", agent_dir)
@@ -63,6 +66,10 @@ for e in range(episodes):
 
         # Agent performs action
         next_state, reward, done, info = env.step(action)
+
+        # Empty tiles reward
+        if reward_type == "Empty":
+            reward = reward + np.log2(np.sum(next_state == 0) + 1)
 
         # Remember
         agent.cache(state, next_state, action, reward, done)

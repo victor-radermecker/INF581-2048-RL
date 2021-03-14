@@ -12,11 +12,7 @@ from agent_conv import Agent_conv
 from metricLogger import MetricLogger
 
 # Gymboard environment
-<<<<<<< HEAD
 #from gym_board import GymBoard
-=======
-from gym_board import GymBoard
->>>>>>> 55230f71d032675a8c0f85fd85d55af4bd90dc6f
 from environment import GameEnv
 
 AGENT_TYPE = ["DQN", "DDQN"]
@@ -44,7 +40,9 @@ save_dir.mkdir(parents=True)
 agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
 
 resume_training = False
-reward_type = "Empty"
+
+reward_empty = True
+reward_max_tile = True
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -72,8 +70,11 @@ for e in range(episodes):
         next_state, reward, done, info = env.step(action)
 
         # Empty tiles reward
-        if reward_type == "Empty":
+        if reward_empty:
             reward = reward + np.log2(np.sum(next_state == 0) + 1)
+
+        if reward_max_tile:
+            reward = reward + np.log2(env.max_tile)
 
         # Remember
         agent.cache(state, next_state, action, reward, done)
@@ -92,7 +93,7 @@ for e in range(episodes):
             break
 
     #logger.log_episode(info['score'])
-    logger.log_episode(0)
+    logger.log_episode(info['score'], info['max_tile'])
 
     if e % 20 == 0:
         logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)

@@ -27,13 +27,8 @@ class Agent_conv:
 
         #Training parameters
         self.exploration_rate = 0.9
-<<<<<<< HEAD
-        self.exploration_rate_decay = 0.99999975
-        self.exploration_rate_min = 0.1
-=======
         self.exploration_rate_decay = 0.9999975
         self.exploration_rate_min = 0.03
->>>>>>> 13976315ca5d335b0a1d8584b1136970d34f2e47
         self.curr_step = 0
 
         self.save_every = 20000  # no. of experiences between saving 2048Net's weights

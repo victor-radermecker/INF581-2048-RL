@@ -11,10 +11,10 @@ from agent_conv import Agent_conv
 
 # Gymboard environment
 from gym_board import GymBoard
-#from environment import GameEnv
+from environment import GameEnv
 
-env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
-#env = GameEnv()
+#env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
+env = GameEnv()
 
 
 # Let's train & play

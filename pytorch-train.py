@@ -11,7 +11,11 @@ from agent_conv import Agent_conv
 from metricLogger import MetricLogger
 
 # Gymboard environment
+<<<<<<< HEAD
 #from gym_board import GymBoard
+=======
+from gym_board import GymBoard
+>>>>>>> 55230f71d032675a8c0f85fd85d55af4bd90dc6f
 from environment import GameEnv
 
 AGENT_TYPE = ["DQN", "DDQN"]

@@ -36,7 +36,7 @@ save_dir.mkdir(parents=True)
 
 agent_type = "DDQN"                                   # DQN or DDQN
 archi = "conv"                                        # fc or conv
-agent_dir = "checkpoints/conv_empty_reward/2048_net_75.chkpt"       # load weights
+agent_dir = "checkpoints/conv_corner_reward/2048_net_75.chkpt"       # load weights
 episodes = 1000                                       # Number of games to play
 render = False                                        # True or False
 

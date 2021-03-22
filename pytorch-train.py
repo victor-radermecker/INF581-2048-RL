@@ -40,7 +40,10 @@ save_dir.mkdir(parents=True)
 agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
 
 resume_training = False
-reward_type = "Empty"
+# reward type
+base_reward = True
+empty_reward = True
+max_corner_reward = True
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -68,8 +71,14 @@ for e in range(episodes):
         next_state, reward, done, info = env.step(action)
 
         # Empty tiles reward
-        if reward_type == "Empty":
+        if not base_reward:
+            reward = 0
+        if empty_reward:
             reward = reward + np.log2(np.sum(next_state == 0) + 1)
+        elif max_corner_reward:
+            max_tile = np.amax(next_state)
+            if max_tile in [next_state[0,0], next_state[-1,0], next_state[-1,-1], next_state[0,-1]]:
+                reward = reward + max_tile
 
         # Remember
         agent.cache(state, next_state, action, reward, done)

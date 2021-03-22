@@ -40,10 +40,12 @@ save_dir.mkdir(parents=True)
 agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
 
 resume_training = False
-
-reward_empty = False
+# reward type
+base_reward = True
+empty_reward = False
+max_corner_reward = False
 reward_max_tile = False
-reward_nr_merge = True
+reward_nr_merge = False
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -78,8 +80,14 @@ for e in range(episodes):
                 reward = (env.nbr_merge-0.5)/8
 
         # Empty tiles reward
-        if reward_empty:
+        if not base_reward:
+            reward = 0
+        if empty_reward:
             reward = reward + np.log2(np.sum(next_state == 0) + 1)
+        elif max_corner_reward:
+            max_tile = np.amax(next_state)
+            if max_tile in [next_state[0,0], next_state[-1,0], next_state[-1,-1], next_state[0,-1]]:
+                reward = reward + max_tile
 
         #Max tile reward
         if reward_max_tile:

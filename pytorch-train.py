@@ -12,7 +12,7 @@ from agent_conv import Agent_conv
 from metricLogger import MetricLogger
 
 # Gymboard environment
-from gym_board import GymBoard
+#from gym_board import GymBoard
 from environment import GameEnv
 
 AGENT_TYPE = ["DQN", "DDQN"]
@@ -37,7 +37,7 @@ save_dir.mkdir(parents=True)
 
 
 #agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DDQN", save_dir=save_dir)
-agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
+agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
 
 resume_training = False
 # reward type
@@ -80,6 +80,9 @@ for e in range(episodes):
             if max_tile in [next_state[0,0], next_state[-1,0], next_state[-1,-1], next_state[0,-1]]:
                 reward = reward + max_tile
 
+        if reward_max_tile:
+            reward = reward + np.log2(env.max_tile)
+
         # Remember
         agent.cache(state, next_state, action, reward, done)
 
@@ -97,7 +100,7 @@ for e in range(episodes):
             break
 
     #logger.log_episode(info['score'])
-    logger.log_episode(0)
+    logger.log_episode(info['score'], info['max_tile'])
 
     if e % 20 == 0:
         logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)

@@ -87,7 +87,7 @@ class GymBoard(object):
         else:
             return self._matrix
 
-    def step(self, action):
+    def step(self, action, reward_type=1):
         """
         Run one timestep of the environment's dynamics.
         Accepts an action and returns a tuple (observation, reward, done, info).
@@ -110,7 +110,7 @@ class GymBoard(object):
 
         old_score = self.score
         old_matrix = self.normalized_matrix
-        action_status = self.move(action)
+        action_status = self.move(action)  #boolean: if false = false action
         score_diff = self.score - old_score
         done = self.is_gameover()
 
@@ -129,6 +129,8 @@ class GymBoard(object):
             reward = score_diff
             if self.step_normalize_reward and reward > 0:
                 reward = np.log2(reward)
+
+
 
         info = {"observation_prev": old_matrix, "score": self.score, "score_diff": score_diff, "invalid_steps": self.n_steps_invalid_current}
 

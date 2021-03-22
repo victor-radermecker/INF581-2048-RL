@@ -42,8 +42,9 @@ agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir
 resume_training = False
 # reward type
 base_reward = True
-empty_reward = True
-max_corner_reward = True
+empty_reward = False
+max_corner_reward = False
+reward_max_tile = False
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -100,7 +101,8 @@ for e in range(episodes):
             break
 
     #logger.log_episode(info['score'])
-    logger.log_episode(info['score'], info['max_tile'])
+    #logger.log_episode(info['score'], info['max_tile'])
+    logger.log_episode(0)
 
     if e % 20 == 0:
         logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)

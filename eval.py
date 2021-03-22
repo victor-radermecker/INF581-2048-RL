@@ -37,7 +37,7 @@ save_dir.mkdir(parents=True)
 agent_type = "DDQN"                                   # DQN or DDQN
 archi = "conv"                                        # fc or conv
 agent_dir = "checkpoints/conv_corner_reward/2048_net_75.chkpt"       # load weights
-episodes = 1000                                       # Number of games to play
+episodes = 10                                       # Number of games to play
 render = False                                        # True or False
 
 ## ----------------------------------------------------------- ##
@@ -57,6 +57,7 @@ elif archi == 'conv':
 
 agent.exploration_rate = 0
 max_tiles = np.zeros(episodes)
+final_scores = np.zeros(episodes)
 MOVES = {0: "MOVE UP", 1:"MOVE DOWN", 2: "MOVE LEFT", 3: "MOVE RIGHT"}
 
 
@@ -96,9 +97,11 @@ for e in range(episodes):
                 print("Game over")
 
             max_tiles[e] = np.max(np.power(2, next_state))
+            #final_scores[e] = info['score']
             break
 
 
 
 max_tiles = np.unique(max_tiles, return_counts=True)
 print("Max tiles : \n", np.asarray(max_tiles).T)
+print("Average final score : ", np.mean(final_scores))

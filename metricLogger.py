@@ -17,13 +17,15 @@ class MetricLogger:
         self.ep_avg_losses_plot = save_dir / "loss_plot.jpg"
         self.ep_avg_qs_plot = save_dir / "q_plot.jpg"
         self.ep_scores_plot = save_dir / "scores_plot.jpg"
-        self.ep_max_tile = save_dir / "max_tile_plot.jpg"
+        self.ep_max_tile_plot = save_dir / "max_tile_plot.jpg"
+        self.ep_sum_tiles_plot = save_dir / "sum_tiles_plot.jpg"
 
         # History metrics
         self.ep_rewards = []
         self.ep_lengths = []
         self.ep_score = []
         self.ep_max_tile = []
+        self.ep_sum_tiles = []
         self.ep_avg_losses = []
         self.ep_avg_qs = []
         
@@ -34,7 +36,9 @@ class MetricLogger:
         self.moving_avg_ep_avg_losses = []
         self.moving_avg_ep_avg_qs = []
         self.moving_avg_ep_scores = []
-
+        self.moving_avg_ep_max_tile = []
+        self.moving_avg_ep_sum_tiles = []
+        
         # Current episode metric
         self.init_episode()
 
@@ -50,12 +54,13 @@ class MetricLogger:
             self.curr_ep_q += q
             self.curr_ep_loss_length += 1
 
-    def log_episode(self, score, max_tile):
+    def log_episode(self, score, max_tile, sum_tiles):
         "Mark end of episode"
         self.ep_rewards.append(self.curr_ep_reward)
         self.ep_lengths.append(self.curr_ep_length)
         self.ep_score.append(score)
         self.ep_max_tile.append(max_tile)
+        self.ep_sum_tiles.append(sum_tiles)
         
         if self.curr_ep_loss_length == 0:
             ep_avg_loss = 0
@@ -67,7 +72,6 @@ class MetricLogger:
         self.ep_avg_losses.append(ep_avg_loss)
         self.ep_avg_qs.append(ep_avg_q)
 
-
         self.init_episode()
 
     def init_episode(self):
@@ -75,20 +79,23 @@ class MetricLogger:
         self.curr_ep_length = 0
         self.curr_ep_loss = 0.0
         self.curr_ep_q = 0.0
-        self.curr_ep_loss_length = 0
+        self.curr_ep_loss_length = 0        
 
 
     def record(self, episode, epsilon, step):
-        mean_ep_reward = np.round(np.mean(self.ep_rewards[-100:]), 3)
+        mean_ep_reward = np.round(np.mean(self.ep_rewards[-100:]), 3) # mean reward over then last 100 episodes
         mean_ep_length = np.round(np.mean(self.ep_lengths[-100:]), 3)
         mean_ep_loss = np.round(np.mean(self.ep_avg_losses[-100:]), 3)
         mean_ep_score = np.round(np.mean(self.ep_score[-100:]), 3)
         mean_ep_max_tile = np.round(np.mean(self.ep_max_tile[-100:]), 3)
+        mean_ep_sum_tiles = np.round(np.mean(self.ep_sum_tiles[-100:]), 3)
         mean_ep_q = np.round(np.mean(self.ep_avg_qs[-100:]), 3)
         self.moving_avg_ep_rewards.append(mean_ep_reward)
         self.moving_avg_ep_lengths.append(mean_ep_length)
         self.moving_avg_ep_avg_losses.append(mean_ep_loss)
         self.moving_avg_ep_scores.append(mean_ep_score)
+        self.moving_avg_ep_max_tile.append(mean_ep_max_tile)
+        self.moving_avg_ep_sum_tiles.append(mean_ep_sum_tiles)
         self.moving_avg_ep_avg_qs.append(mean_ep_q)
 
         last_record_time = self.record_time
@@ -103,6 +110,7 @@ class MetricLogger:
             f"Mean Length {mean_ep_length} - "
             f"Mean Loss {mean_ep_loss} - "
             f"Mean score {mean_ep_score} - "
+            f"Mean Sum iles {mean_ep_sum_tiles} - "
             f"Max tile score {mean_ep_max_tile} - "
             f"Mean Q Value {mean_ep_q} - "
             f"Time Delta {time_since_last_record} - "
@@ -112,12 +120,12 @@ class MetricLogger:
         with open(self.save_log, "a") as f:
             f.write(
                 f"{episode:8d}{step:8d}{epsilon:10.3f}"
-                f"{mean_ep_reward:15.3f}{mean_ep_length:15.3f}{mean_ep_loss:15.3f}{mean_ep_score:15.3f}{mean_ep_q:15.3f}"
+                f"{mean_ep_reward:15.3f}{mean_ep_length:15.3f}{mean_ep_loss:15.3f}{mean_ep_score:15.3f}{mean_ep_sum_tiles:15.3f}{mean_ep_q:15.3f}"
                 f"{time_since_last_record:15.3f}"
                 f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'):>20}\n"
             )
 
-        for metric in ["ep_rewards", "ep_lengths", "ep_scores", "ep_avg_losses", "ep_avg_qs"]:
-            plt.plot(getattr(self, f"moving_avg_{metric}"))
+        for metric in ["ep_rewards", "ep_lengths", "ep_scores", "ep_avg_losses", "ep_avg_qs", 'ep_max_tile', "ep_sum_tiles"]:
+            plt.plot(getattr(self, f"moving_avg_{metric}"))  
             plt.savefig(getattr(self, f"{metric}_plot"))
             plt.clf()

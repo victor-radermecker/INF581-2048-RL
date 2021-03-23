@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 class MetricLogger:
     def __init__(self, save_dir):
         self.save_log = save_dir / "log"
+        self.save_log_score = save_dir / "score.txt"
+
         with open(self.save_log, "w") as f:
             f.write(
                 f"{'Episode':>8}{'Step':>8}{'Epsilon':>10}{'MeanReward':>15}"
@@ -124,6 +126,10 @@ class MetricLogger:
                 f"{time_since_last_record:15.3f}"
                 f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'):>20}\n"
             )
+
+        with open(self.save_log_score, "a") as f:
+            txt = str(mean_ep_score) + '\n'
+            f.write(txt)
 
         for metric in ["ep_rewards", "ep_lengths", "ep_scores", "ep_avg_losses", "ep_avg_qs", 'ep_max_tile', "ep_sum_tiles"]:
             plt.plot(getattr(self, f"moving_avg_{metric}"))  

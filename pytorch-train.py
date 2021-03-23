@@ -41,11 +41,11 @@ agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir
 
 resume_training = False
 # reward type
-base_reward = True
-empty_reward = False
-max_corner_reward = False
-reward_max_tile = False
-reward_nr_merge = False
+base_reward = True       #Taking the base reward
+empty_reward = False     #Taking number of white tiles as reward
+max_corner_reward = False 
+reward_max_tile = False  #Taking max tile as reward
+reward_nr_merge = False  #Taking number of tiles merged at each step as reward
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -72,13 +72,6 @@ for e in range(episodes):
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # Number of merged tiles
-        if reward_nr_merge:
-            if env.max_tile == 2048:
-                reward = 1
-            else:
-                reward = (env.nbr_merge-0.5)/8
-
         # Empty tiles reward
         if not base_reward:
             reward = 0
@@ -88,10 +81,15 @@ for e in range(episodes):
             max_tile = np.amax(next_state)
             if max_tile in [next_state[0,0], next_state[-1,0], next_state[-1,-1], next_state[0,-1]]:
                 reward = reward + max_tile
-
-        #Max tile reward
-        if reward_max_tile:
-            reward = reward + np.log2(env.max_tile)
+        elif reward_nr_merge:
+            if env.max_tile == 2048:
+                reward = 1
+            else:
+                reward = (env.nbr_merge-0.5)/8
+        elif reward_max_tile:
+            if reward_max_tile:
+                    reward = reward + np.log2(env.max_tile)
+        
         
         # Remember
         agent.cache(state, next_state, action, reward, done)

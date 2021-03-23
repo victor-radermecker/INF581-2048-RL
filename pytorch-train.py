@@ -46,6 +46,7 @@ empty_reward = False     #Taking number of white tiles as reward
 max_corner_reward = False 
 reward_max_tile = False  #Taking max tile as reward
 reward_nr_merge = False  #Taking number of tiles merged at each step as reward
+reward_new_max_tile = False #Getting a reward for each new max tile created
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
@@ -89,6 +90,10 @@ for e in range(episodes):
         elif reward_max_tile:
             if reward_max_tile:
                     reward = reward + np.log2(env.max_tile)
+        elif reward_new_max_tile:
+          if env.max_tile > max_tile:
+            max_tile = env.max_tile
+            reward = + np.log2(max_tile)
         
         
         # Remember

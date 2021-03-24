@@ -21,8 +21,8 @@ class Agent:
         self.net = self.net.to(self.device)
 
         #Training parameters
-        self.exploration_rate = 0.5
-        self.exploration_rate_decay = 0.99999975
+        self.exploration_rate = 0.9
+        self.exploration_rate_decay = 0.9999975
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
@@ -33,7 +33,7 @@ class Agent:
         self.memory = deque(maxlen=100000)
         self.batch_size = 16
         self.gamma = 0.9
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.0001)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.0005)
         self.loss_fn = torch.nn.MSELoss()
 
         #Learn

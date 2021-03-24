@@ -1,7 +1,3 @@
-# Readme
-
-This readme is a draft.
-
 ## Installation
 
 Install required libraries :

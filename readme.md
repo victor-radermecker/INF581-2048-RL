@@ -1,3 +1,11 @@
+## Project Presentation
+
+2048 is a simple game, with simple rules : you can move the tiles up, down, left or right, to combine them to get a 2048 tile. However, while the action-space is very limited, the state-space of this game is huge, and designing a reinforcement learning agent to beat it is a non-trivial task. This paper presents the two major investigations of our project. On the one hand, we implemented a Gym Environment based on an existing Python implementation of the game. On the second hand, we designed various agents based on different reward functions and learning algorithms, our final goal being to fully compare them and understand which one performs best.
+
+
+![screenshot](environment/img/screenshot.png)
+
+
 ## Installation
 
 Install required libraries :

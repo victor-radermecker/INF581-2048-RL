@@ -41,12 +41,14 @@ agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir
 
 resume_training = False
 # reward type
-base_reward = True       #Taking the base reward
+base_reward = False       #Taking the base reward
 empty_reward = False     #Taking number of white tiles as reward
-max_corner_reward = False 
+max_corner_reward = False #Adding the log-value of the max tile if it is in the corner as reward
 reward_max_tile = False  #Taking max tile as reward
 reward_nr_merge = False  #Taking number of tiles merged at each step as reward
-reward_new_max_tile = False #Getting a reward for each new max tile created
+reward_new_max_tile = True #Getting a reward for each new max tile created
+
+max_tile = 0  #Used with new max tile reward
 
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"

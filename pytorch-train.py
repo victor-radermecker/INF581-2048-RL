@@ -12,12 +12,9 @@ from agent_conv import Agent_conv
 from metricLogger import MetricLogger
 
 # Gymboard environment
-#from gym_board import GymBoard
 from environment import GameEnv
 
-AGENT_TYPE = ["DQN", "DDQN"]
 
-#env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
 env = GameEnv()
 
 env.reset()
@@ -25,7 +22,31 @@ next_state, reward, done, info = env.step(action=0)
 print(f"{next_state.shape},\n {reward},\n {done},\n {info}")
 
 
-# Let's train & play
+#########################################################################################################
+#####################     AGENT DEFINITION     ##########################################################
+#########################################################################################################
+
+agent_type = "DDQN"    # Agent type : must be "DDQN", "DQN" or "Conv"
+
+# reward type
+base_reward = True       #Taking the base reward
+empty_reward = False     #Taking number of white tiles as reward
+max_corner_reward = False #Adding the log-value of the max tile if it is in the corner as reward
+reward_max_tile = False  #Taking max tile as reward
+reward_nr_merge = False  #Taking number of tiles merged at each step as reward
+reward_new_max_tile = False #Getting a reward for each new max tile created
+
+
+episodes = 10000
+
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+
+
+
+
+# Training
 use_cuda = torch.cuda.is_available()
 if os.getenv("HOSTNAME") == "arcanes": # CUDA is buggy on my machine
     use_cuda = False
@@ -35,21 +56,18 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
+if agent_type == "DDQN":
+    agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = "DDQN", save_dir=save_dir)
+elif agent_type == "DQN":
+    agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = "DQN", save_dir=save_dir)
+elif agent_type == "Conv":
+    agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
 
-#agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = "DDQN", save_dir=save_dir)
-agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
 
+max_tile = 0  # Varibale used with new max tile reward
+
+# Use this to resume training
 resume_training = False
-# reward type
-base_reward = False       #Taking the base reward
-empty_reward = False     #Taking number of white tiles as reward
-max_corner_reward = False #Adding the log-value of the max tile if it is in the corner as reward
-reward_max_tile = False  #Taking max tile as reward
-reward_nr_merge = False  #Taking number of tiles merged at each step as reward
-reward_new_max_tile = True #Getting a reward for each new max tile created
-
-max_tile = 0  #Used with new max tile reward
-
 if(resume_training):
     agent_dir = "checkpoints/DQN_10000/2048_net_67.chkpt"
     print("Resume training from checkpoint : ", agent_dir)
@@ -60,7 +78,6 @@ if(resume_training):
 
 logger = MetricLogger(save_dir)
 
-episodes = 10000
 
 for e in range(episodes):
 

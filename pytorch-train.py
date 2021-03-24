@@ -33,7 +33,7 @@ base_reward = True       #Taking the base reward
 empty_reward = False     #Taking number of white tiles as reward
 max_corner_reward = False #Adding the log-value of the max tile if it is in the corner as reward
 reward_max_tile = False  #Taking max tile as reward
-reward_nr_merge = False  #Taking number of tiles merged at each step as reward
+reward_nr_merge = False  #Taking number of tiles merged at each step as reward (not compatible with others)
 reward_new_max_tile = False #Getting a reward for each new max tile created
 
 

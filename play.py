@@ -7,7 +7,6 @@ import pygame
 import sys, os
 import numpy as np
 from pygame.locals import *
-# from gym_board import GymBoard
 from environment import GameEnv
 from utils import Step, Game, encode_action
 import pickle

@@ -18,6 +18,21 @@ from environment import GameEnv
 env = GameEnv()
 
 
+#########################################################################################################
+#####################     EVAL PARAMETERS    ###########################################################
+#########################################################################################################
+
+agent_type = "DDQN"                                   # DQN or DDQN
+archi = "conv"                                        # fc or conv
+agent_dir = "checkpoints/Conv_base_empty_corner/2048_net_147.chkpt"       # load weights
+episodes = 1000                                       # Number of games to play
+render = False                                        # True or False, whether to print the states
+
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+
+
 # Let's train & play
 use_cuda = torch.cuda.is_available()
 # use_cuda = False
@@ -29,16 +44,6 @@ save_dir = Path("eval") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
 
-## ----------------------------------------------------------- ##
-# Please fix evaluation parameters here.
-
-agent_type = "DDQN"                                   # DQN or DDQN
-archi = "conv"                                        # fc or conv
-agent_dir = "checkpoints/Conv_base_empty_corner/2048_net_147.chkpt"       # load weights
-episodes = 1000                                       # Number of games to play
-render = False                                        # True or False
-
-## ----------------------------------------------------------- ##
 
 
 if use_cuda:

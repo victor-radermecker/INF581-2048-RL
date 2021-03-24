@@ -1,3 +1,0 @@
-[submodule "2048-python"]
-	path = environment
-	url = https://github.com/nephanth/2048-python.git

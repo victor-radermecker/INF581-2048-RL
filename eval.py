@@ -10,13 +10,11 @@ from agent import Agent
 from agent_conv import Agent_conv
 
 # Gymboard environment
-from gym_board import GymBoard
 from environment import GameEnv
 
 # Render env
 #import play
 
-#env = GymBoard(max_wrong_steps=5, zero_invalid_move_reward=False)
 env = GameEnv()
 
 
@@ -36,8 +34,8 @@ save_dir.mkdir(parents=True)
 
 agent_type = "DDQN"                                   # DQN or DDQN
 archi = "conv"                                        # fc or conv
-agent_dir = "checkpoints/conv_corner_reward/2048_net_75.chkpt"       # load weights
-episodes = 10                                       # Number of games to play
+agent_dir = "checkpoints/Conv_base_empty_corner/2048_net_147.chkpt"       # load weights
+episodes = 1000                                       # Number of games to play
 render = False                                        # True or False
 
 ## ----------------------------------------------------------- ##
@@ -49,10 +47,10 @@ else:
     weights = torch.load(agent_dir, map_location=torch.device('cpu'))["model"]
 
 if archi == 'fc':
-    agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GymBoard.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
+    agent = Agent(state_dim=(8, 4, 4, 16), action_dim=GameEnv.NB_ACTIONS, agent_type = agent_type, save_dir=save_dir)
     agent.net.load_state_dict(weights)
 elif archi == 'conv':
-    agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GymBoard.NB_ACTIONS, save_dir=save_dir)
+    agent = Agent_conv(state_dim=(1,4,4,16), action_dim=GameEnv.NB_ACTIONS, save_dir=save_dir)
     agent.onlineNet.load_state_dict(weights)
 
 agent.exploration_rate = 0
@@ -77,15 +75,10 @@ for e in range(episodes):
         if(render):
             print(np.power(2, state))
             print(MOVES[action], "\n")
-            #play.render_board(np.power(2, state))
-            #time.sleep(0.5)
 
 
         # Agent performs action
         next_state, reward, done, info = env.step(action)
-
-        # Remember
-        agent.cache(state, next_state, action, reward, done)
 
         # Update state
         state = next_state
@@ -96,8 +89,8 @@ for e in range(episodes):
                 print(np.power(2, state))
                 print("Game over")
 
-            max_tiles[e] = np.max(np.power(2, next_state))
-            #final_scores[e] = info['score']
+            max_tiles[e] = info['max_tile']
+            final_scores[e] = info['score']
             break
 
 
